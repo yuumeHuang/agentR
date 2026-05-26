@@ -24,7 +24,7 @@ export function createPlotTool(session: SessionManager) {
   return {
     name: "r_plot" as const,
     description:
-      "Execute R plotting code and return the resulting plot as a PNG image. Supports base R graphics and ggplot2. Works with both local R sessions and remote SSH sessions.",
+      "Execute R plotting code and return the resulting plot as a PNG image. Supports base R graphics and ggplot2. The plot also appears in RStudio's Plots pane when using attach mode. Works with both local R sessions and remote SSH sessions.",
     inputSchema,
     handler: async (input: PlotInput) => {
       let filePath: string | null = null;
@@ -66,14 +66,14 @@ export function createPlotTool(session: SessionManager) {
 
         filePath = pathMatch[1].trim();
 
-        // Step 2: Compress user code to single line (required for PTY mode in SSH).
-        // PTY sends input line-by-line, so multi-line expressions break.
-        const singleLineCode = input.code.replace(/\n/g, " ");
-
-        // Step 3: Build single-line wrapped code for reliable PTY handling
-        const wrappedCode = `tryCatch({ png("${filePath}", width=${w}, height=${h}, res=${d}); { ${singleLineCode} }; dev.off(); cat("Plot saved\\n") }, error = function(e) { try(dev.off(), silent = TRUE); cat("Error:", conditionMessage(e), "\\n") })`;
-
-        const plotResult = await session.execute(wrappedCode, 30000);
+        // Step 2: Execute the plot code WITHOUT png() wrapper.
+        // This renders to R's default device — in RStudio, that's the Plots pane.
+        // In spawn mode, the default device is the null device (no visible output).
+        // Either way, the plot is drawn and can be captured below.
+        const plotResult = await session.execute(
+          `tryCatch({ ${input.code} }, error = function(e) cat("Error:", conditionMessage(e), "\\n"))`,
+          30000
+        );
 
         if (plotResult.error) {
           return {
@@ -83,7 +83,22 @@ export function createPlotTool(session: SessionManager) {
           };
         }
 
-        // Step 3: Read the plot file (local fs or via SFTP for SSH)
+        // Step 3: Copy the current plot to a PNG file via dev.copy().
+        // This captures whatever was drawn on the active graphics device.
+        const copyResult = await session.execute(
+          `tryCatch({ dev.copy(png, "${filePath}", width=${w}, height=${h}, res=${d}); dev.off(); cat("Captured\\n") }, error = function(e) { try(dev.off(), silent = TRUE); cat("Error:", conditionMessage(e), "\\n") })`,
+          15000
+        );
+
+        if (copyResult.error) {
+          return {
+            content: [
+              { type: "text" as const, text: `[capture error]\n${copyResult.error}` },
+            ],
+          };
+        }
+
+        // Step 4: Read the plot file (local fs or via SFTP/HTTP for remote)
         const imageBuffer = await session.readFile(filePath);
         const base64 = imageBuffer.toString("base64");
 
