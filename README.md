@@ -1,5 +1,7 @@
 # agentR
 
+**English** | [中文](./README_CN.md)
+
 MCP server for interactive R sessions. Let AI agents (Claude Code, OpenCode) execute R code in a persistent R session — local or remote via SSH.
 
 **Two modes:**
