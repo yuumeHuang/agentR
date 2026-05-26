@@ -2,15 +2,17 @@
 
 [English](./README.md) | **中文**
 
-MCP server，让 AI agent（Claude Code、OpenCode）在持久化的 R session 中执行代码——支持本地和 SSH 远程。
+MCP server，让 AI agent 在持久化的 R session 中执行代码——支持本地和 SSH 远程。
 
 **两种模式：**
 - **Spawn 模式**（默认）：AI 新建一个 R 进程，独占使用
 - **Attach 模式**：AI 接入已有的 R session（如你的 RStudio Server），实现人机协作，变量共享
 
-## 快速开始
+## 推荐客户端：CodeWhale
 
-### 安装
+[CodeWhale](https://github.com/Hmbown/CodeWhale) 是基于 Rust 的编程 Agent，对 MCP 有完善的一等支持，是 agentR 的推荐客户端。
+
+### 安装 agentR
 
 ```bash
 git clone https://github.com/yuumeHuang/agentR.git
@@ -19,17 +21,36 @@ npm install
 npm run build
 ```
 
-### Claude Code
+### 在 CodeWhale 中配置
 
-在项目的 `.mcp.json` 中添加：
+#### 方式 A：TUI 内快速配置
+
+启动 CodeWhale TUI，运行：
+
+```
+/mcp add stdio agentR node --arg "/absolute/path/to/agentR/dist/index.js"
+```
+
+设置环境变量：
+
+```
+/mcp env agentR AGENT_R_SSH_HOST your-server.com
+/mcp env agentR AGENT_R_SSH_USER username
+/mcp env agentR AGENT_R_SSH_PASSWORD password
+```
+
+#### 方式 B：编辑配置文件
+
+编辑 `~/.deepseek/mcp.json`：
 
 **Spawn 模式**（AI 通过 SSH 新建远程 R 进程）：
+
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "agentR": {
       "command": "node",
-      "args": ["/path/to/agentR/dist/index.js"],
+      "args": ["/absolute/path/to/agentR/dist/index.js"],
       "env": {
         "AGENT_R_SSH_HOST": "your-server.com",
         "AGENT_R_SSH_USER": "username",
@@ -41,12 +62,13 @@ npm run build
 ```
 
 **Attach 模式**（AI 接入你正在使用的 RStudio Server session）：
+
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "agentR": {
       "command": "node",
-      "args": ["/path/to/agentR/dist/index.js"],
+      "args": ["/absolute/path/to/agentR/dist/index.js"],
       "env": {
         "AGENT_R_MODE": "attach",
         "AGENT_R_SSH_HOST": "your-server.com",
@@ -59,24 +81,11 @@ npm run build
 }
 ```
 
-### OpenCode
+#### 验证配置
 
-同样的配置格式，写在 `opencode.json` 中：
-
-```json
-{
-  "mcpServers": {
-    "agentR": {
-      "command": "node",
-      "args": ["/path/to/agentR/dist/index.js"],
-      "env": {
-        "AGENT_R_SSH_HOST": "your-server.com",
-        "AGENT_R_SSH_USER": "username",
-        "AGENT_R_SSH_PASSWORD": "password"
-      }
-    }
-  }
-}
+```
+/mcp list            # 应显示 agentR 为已启用
+/mcp tools agentR    # 应列出 6 个工具：r_execute, r_inspect, r_plot 等
 ```
 
 ## Attach 模式 — 人机协作
@@ -102,9 +111,9 @@ agentR_serve(9876)
 
 RStudio 控制台保持完全可交互——你可以继续输入命令。
 
-### 第四步：配置 MCP 客户端
+### 第四步：配置 CodeWhale attach 模式
 
-在 MCP 配置中设置 `AGENT_R_MODE=attach` 和 `AGENT_R_ATTACH_PORT=9876`。
+使用上面的 attach 模式配置，设置 `AGENT_R_MODE=attach` 和 `AGENT_R_ATTACH_PORT=9876`。
 
 ### 停止服务
 

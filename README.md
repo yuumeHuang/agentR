@@ -2,34 +2,55 @@
 
 **English** | [中文](./README_CN.md)
 
-MCP server for interactive R sessions. Let AI agents (Claude Code, OpenCode) execute R code in a persistent R session — local or remote via SSH.
+MCP server for interactive R sessions. Let AI agents execute R code in a persistent R session — local or remote via SSH.
 
 **Two modes:**
 - **Spawn mode** (default): AI starts a new R process and controls it exclusively
 - **Attach mode**: AI connects to an existing R session (e.g., your RStudio Server session) for human-AI collaboration with shared variables
 
-## Quick Start
+## Recommended Agent: CodeWhale
 
-### Install
+[CodeWhale](https://github.com/Hmbown/CodeWhale) is a Rust-based coding agent with first-class MCP support. It's the recommended client for agentR.
+
+### Install agentR
 
 ```bash
-git clone https://github.com/yuume/agentR.git
+git clone https://github.com/yuumeHuang/agentR.git
 cd agentR
 npm install
 npm run build
 ```
 
-### Claude Code
+### Configure in CodeWhale
 
-Add to your project's `.mcp.json`:
+#### Option A: In TUI (quick)
+
+Launch CodeWhale TUI, then run:
+
+```
+/mcp add stdio agentR node --arg "/absolute/path/to/agentR/dist/index.js"
+```
+
+Set environment variables with:
+
+```
+/mcp env agentR AGENT_R_SSH_HOST your-server.com
+/mcp env agentR AGENT_R_SSH_USER username
+/mcp env agentR AGENT_R_SSH_PASSWORD password
+```
+
+#### Option B: Edit config file
+
+Edit `~/.deepseek/mcp.json`:
 
 **Spawn mode** (AI creates a new remote R session via SSH):
+
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "agentR": {
       "command": "node",
-      "args": ["/path/to/agentR/dist/index.js"],
+      "args": ["/absolute/path/to/agentR/dist/index.js"],
       "env": {
         "AGENT_R_SSH_HOST": "your-server.com",
         "AGENT_R_SSH_USER": "username",
@@ -41,12 +62,13 @@ Add to your project's `.mcp.json`:
 ```
 
 **Attach mode** (AI joins your existing RStudio Server session):
+
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "agentR": {
       "command": "node",
-      "args": ["/path/to/agentR/dist/index.js"],
+      "args": ["/absolute/path/to/agentR/dist/index.js"],
       "env": {
         "AGENT_R_MODE": "attach",
         "AGENT_R_SSH_HOST": "your-server.com",
@@ -59,24 +81,11 @@ Add to your project's `.mcp.json`:
 }
 ```
 
-### OpenCode
+#### Verify in CodeWhale
 
-Same config format in your `opencode.json`:
-
-```json
-{
-  "mcpServers": {
-    "agentR": {
-      "command": "node",
-      "args": ["/path/to/agentR/dist/index.js"],
-      "env": {
-        "AGENT_R_SSH_HOST": "your-server.com",
-        "AGENT_R_SSH_USER": "username",
-        "AGENT_R_SSH_PASSWORD": "password"
-      }
-    }
-  }
-}
+```
+/mcp list            # Should show agentR as enabled
+/mcp tools agentR    # Should list 6 tools: r_execute, r_inspect, r_plot, etc.
 ```
 
 ## Attach Mode — Human + AI Collaboration
@@ -102,9 +111,9 @@ agentR_serve(9876)
 
 RStudio console remains fully interactive — you can keep typing commands.
 
-### Step 4: Configure MCP client with attach mode
+### Step 4: Configure CodeWhale with attach mode
 
-Set `AGENT_R_MODE=attach` and `AGENT_R_ATTACH_PORT=9876` in your MCP config.
+Use the attach mode config above with `AGENT_R_MODE=attach` and `AGENT_R_ATTACH_PORT=9876`.
 
 ### Stop the server
 
