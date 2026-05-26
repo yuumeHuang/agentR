@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "agentR": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": {
+        "AGENT_R_MODE": "spawn",
+        "AGENT_R_SSH_HOST": "",
+        "AGENT_R_SSH_USER": "",
+        "AGENT_R_SSH_PASSWORD": "",
+        "AGENT_R_SSH_PORT": "22",
+        "AGENT_R_ATTACH_PORT": "9876"
+      }
+    }
+  }
+}

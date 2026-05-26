@@ -1,0 +1,14 @@
+{
+  "name": "agentR",
+  "version": "0.1.0",
+  "description": "Interactive R session support. Execute R code, inspect objects, generate plots, manage packages.",
+  "author": "agentR",
+  "tools": [
+    "r_execute",
+    "r_inspect",
+    "r_plot",
+    "r_install_packages",
+    "r_session_info",
+    "r_reset"
+  ]
+}
