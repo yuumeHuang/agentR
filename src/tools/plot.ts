@@ -70,8 +70,12 @@ export function createPlotTool(session: SessionManager) {
         // This renders to R's default device — in RStudio, that's the Plots pane.
         // In spawn mode, the default device is the null device (no visible output).
         // Either way, the plot is drawn and can be captured below.
+        //
+        // CRITICAL: eval() inside httpuv does NOT auto-print ggplot/lattice objects.
+        // We must explicitly print() them so they render on the active device.
+        // Base R plot() renders as a side-effect and doesn't need this.
         const plotResult = await session.execute(
-          `tryCatch({ ${input.code} }, error = function(e) cat("Error:", conditionMessage(e), "\\n"))`,
+          `tryCatch({ .agentR_res <- { ${input.code} }; if (inherits(.agentR_res, c("ggplot","gg","trellis"))) print(.agentR_res) }, error = function(e) cat("Error:", conditionMessage(e), "\\n"))`,
           30000
         );
 
