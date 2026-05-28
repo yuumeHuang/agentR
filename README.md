@@ -138,7 +138,8 @@ agentR_stop()
 |----------|---------|-------------|
 | `AGENT_R_MODE` | `spawn` | `spawn` = new R process, `attach` = join existing session |
 | `AGENT_R_PATH` | `R` | Path to R binary |
-| `AGENT_R_TIMEOUT` | `60000` | Execution timeout in ms |
+| `AGENT_R_TIMEOUT` | `60000` | Idle timeout in ms — resets on each output chunk (sliding window) |
+| `AGENT_R_MAX_TOTAL_TIMEOUT` | `600000` | Absolute max execution time in ms regardless of output |
 | `AGENT_R_SSH_HOST` | — | SSH host (enables SSH mode) |
 | `AGENT_R_SSH_PORT` | `22` | SSH port |
 | `AGENT_R_SSH_USER` | — | SSH username |

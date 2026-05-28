@@ -17,14 +17,15 @@ import { createResetTool } from "./tools/reset.js";
  * SSH mode is activated when AGENT_R_SSH_HOST is set.
  *
  * Environment variables:
- *   AGENT_R_PATH           - Path to R binary (default: "R")
- *   AGENT_R_TIMEOUT        - Default timeout in ms (default: 60000)
- *   AGENT_R_SSH_HOST       - SSH host (enables SSH mode)
- *   AGENT_R_SSH_PORT       - SSH port (default: 22)
- *   AGENT_R_SSH_USER       - SSH username
- *   AGENT_R_SSH_PASSWORD   - SSH password auth
- *   AGENT_R_SSH_KEY        - SSH private key (file path or content)
- *   AGENT_R_SSH_PASSPHRASE - Passphrase for private key
+ *   AGENT_R_PATH               - Path to R binary (default: "R")
+ *   AGENT_R_TIMEOUT            - Idle timeout in ms, resets on each output (default: 60000)
+ *   AGENT_R_MAX_TOTAL_TIMEOUT  - Absolute max execution time in ms (default: 600000)
+ *   AGENT_R_SSH_HOST           - SSH host (enables SSH mode)
+ *   AGENT_R_SSH_PORT           - SSH port (default: 22)
+ *   AGENT_R_SSH_USER           - SSH username
+ *   AGENT_R_SSH_PASSWORD       - SSH password auth
+ *   AGENT_R_SSH_KEY            - SSH private key (file path or content)
+ *   AGENT_R_SSH_PASSPHRASE     - Passphrase for private key
  */
 function buildOptionsFromEnv(): SessionOptions {
   const options: SessionOptions = {
@@ -32,6 +33,9 @@ function buildOptionsFromEnv(): SessionOptions {
     timeout: process.env.AGENT_R_TIMEOUT
       ? parseInt(process.env.AGENT_R_TIMEOUT, 10)
       : 60000,
+    maxTotalTimeout: process.env.AGENT_R_MAX_TOTAL_TIMEOUT
+      ? parseInt(process.env.AGENT_R_MAX_TOTAL_TIMEOUT, 10)
+      : undefined,
   };
 
   const mode = process.env.AGENT_R_MODE || "spawn";

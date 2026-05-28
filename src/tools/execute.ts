@@ -10,7 +10,7 @@ export const inputSchema = z.object({
   timeout: z
     .number()
     .optional()
-    .describe("Execution timeout in milliseconds. Default: 60000."),
+    .describe("Execution timeout in milliseconds. Default: 60000. Timer resets on each output chunk."),
 });
 
 export type ExecuteInput = z.infer<typeof inputSchema>;

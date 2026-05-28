@@ -138,7 +138,8 @@ agentR_stop()
 |------|--------|------|
 | `AGENT_R_MODE` | `spawn` | `spawn` = 新建 R 进程，`attach` = 接入已有 session |
 | `AGENT_R_PATH` | `R` | R 可执行文件路径 |
-| `AGENT_R_TIMEOUT` | `60000` | 执行超时（毫秒） |
+| `AGENT_R_TIMEOUT` | `60000` | 空闲超时（毫秒）——每次收到输出自动重置（滑动窗口） |
+| `AGENT_R_MAX_TOTAL_TIMEOUT` | `600000` | 绝对最大执行时间（毫秒），不因输出活动而延长 |
 | `AGENT_R_SSH_HOST` | — | SSH 主机（设置后启用 SSH 模式） |
 | `AGENT_R_SSH_PORT` | `22` | SSH 端口 |
 | `AGENT_R_SSH_USER` | — | SSH 用户名 |
